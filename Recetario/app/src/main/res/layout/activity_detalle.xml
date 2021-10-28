@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Detalle">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="405dp"
+        android:layout_height="600dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="3dp"
+        android:layout_marginBottom="91dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/txtNombreReceta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nombre de la receta"
+            android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/txtCategoria"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="Categoria"
+            android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/txtIngredientes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ingredientes" />
+
+        <ListView
+            android:id="@+id/lvIngredientesReceta"
+            android:layout_width="match_parent"
+            android:layout_height="164dp" />
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Procedimiento" />
+
+        <EditText
+            android:id="@+id/txtProcedimiento"
+            android:layout_width="match_parent"
+            android:layout_height="235dp"
+            android:ems="10"
+            android:enabled="false"
+            android:gravity="start|top"
+            android:inputType="textMultiLine"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <EditText
+            android:id="@+id/txtCantidadPersonas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Cantidad de personas"
+            android:inputType="number"
+            android:minHeight="48dp" />
+
+        <Button
+            android:id="@+id/btnCalcularIngredientes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:backgroundTint="#FF5722"
+            android:text="Calcular ingredientes" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnModificarReceta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="52dp"
+        android:layout_marginTop="8dp"
+        android:text="Modificar"
+        android:backgroundTint="#FF5722"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+    <Button
+        android:id="@+id/btnEliminarReceta"
+        android:layout_width="120dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="118dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="53dp"
+        android:text="Eliminar"
+        android:backgroundTint="@color/design_default_color_error"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/btnModificarReceta"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ScreenCustomizeReceta">
+
+    <LinearLayout
+        android:layout_width="376dp"
+        android:layout_height="639dp"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="1dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/tbNombreReceta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Ingresa el nombre de la receta"
+            android:inputType="textPersonName"
+            android:textSize="25dp" />
+
+        <EditText
+            android:id="@+id/tbIdReceta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Código receta"
+            android:inputType="number" />
+
+        <EditText
+            android:id="@+id/tbPasosReceta"
+            android:layout_width="match_parent"
+            android:layout_height="124dp"
+            android:ems="10"
+            android:gravity="start|top"
+            android:hint="Ingresa el procedimiento"
+            android:inputType="textMultiLine"
+            android:textSize="25dp" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Añade ingredientes de platillo individual"
+            android:textSize="20dp" />
+
+        <ListView
+            android:id="@+id/lvIngredientes"
+            android:layout_width="match_parent"
+            android:layout_height="148dp" />
+
+        <EditText
+            android:id="@+id/tbIngrediente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Ingrediente"
+            android:inputType="textPersonName"
+            android:minHeight="48dp" />
+
+        <EditText
+            android:id="@+id/tbCantidad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Cantidad"
+            android:inputType="number"
+            android:minHeight="48dp" />
+
+        <Button
+            android:id="@+id/btnAñadirIngrediente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:backgroundTint="#FF5722"
+            android:text="Añadir ingrediente" />
+
+        <Button
+            android:id="@+id/btnGuardarReceta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginBottom="20dp"
+            android:backgroundTint="#FF5722"
+            android:text="Guardar receta" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
