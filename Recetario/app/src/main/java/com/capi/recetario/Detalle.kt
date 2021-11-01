@@ -19,21 +19,28 @@ class Detalle : AppCompatActivity() {
         val lvIngredientesReceta = findViewById<ListView>(R.id.lvIngredientesReceta)
         val txtProcedimiento = findViewById<EditText>(R.id.txtProcedimiento)
         val txtCantidadPersonas = findViewById<EditText>(R.id.txtCantidadPersonas)
+        val txtNumeroPersonas = findViewById<TextView>(R.id.txtNumeroPersonas)
         val btnCalcularIngrediente = findViewById<Button>(R.id.btnCalcularIngredientes)
         val btnModificarReceta = findViewById<Button>(R.id.btnModificarReceta)
         val btnEliminarReceta = findViewById<Button>(R.id.btnEliminarReceta)
 
         if (recetaSeleccionada != null) {
-            receta = cargarDatosReceta(recetaSeleccionada)
+            receta = cargarDatosReceta(recetaSeleccionada!!)
         }
         var listaIngredientes = cargarIngredientes(receta.idReceta)
         txtNombreReceta.setText(receta.nombreReceta)
         txtCategoria.setText("Categoria: "+receta.categoriaReceta)
         txtProcedimiento.setText(receta.procedimiento)
+        txtNumeroPersonas.setText("Receta para: "+receta.cantidadPersonas.toString()+" personas")
         cargarListaIngredientes(listaIngredientes, lvIngredientesReceta)
 
         btnEliminarReceta.setOnClickListener{
             eliminarReceta(receta.idReceta)
+            val intent = Intent()
+            var mensaje = "Guardado"
+            intent.putExtra("Mensaje", mensaje)
+            setResult(RESULT_OK, intent)
+            finish()
         }
 
         btnModificarReceta.setOnClickListener{
@@ -41,12 +48,38 @@ class Detalle : AppCompatActivity() {
             val pantallaIniciar = Intent(this, ScreenCustomizeReceta::class.java)
             pantallaIniciar.putExtra("esNuevo", esNuevo)
             pantallaIniciar.putExtra("idRecetaModificar", receta.idReceta)
-            startActivity(pantallaIniciar)
+            startActivityForResult(pantallaIniciar, 0)
         }
 
         btnCalcularIngrediente.setOnClickListener{
             var cantidadPersonas = txtCantidadPersonas.text.toString().toInt()
-            cargarListaCalculo(listaIngredientes, lvIngredientesReceta, cantidadPersonas)
+            cargarListaCalculo(listaIngredientes, lvIngredientesReceta, cantidadPersonas, receta.cantidadPersonas)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == requestCode){
+            if(resultCode == resultCode){
+                var mensaje = data?.getStringExtra("Mensaje")
+                if(mensaje.equals("Guardado")){
+                    val bundle = intent.extras
+                    var recetaSeleccionada = bundle?.getString("receta")
+                    var receta = Receta()
+                    val txtNombreReceta = findViewById<TextView>(R.id.txtNombreReceta)
+                    val txtCategoria = findViewById<TextView>(R.id.txtCategoria)
+                    val lvIngredientesReceta = findViewById<ListView>(R.id.lvIngredientesReceta)
+                    val txtProcedimiento = findViewById<EditText>(R.id.txtProcedimiento)
+                    val txtNumeroPersonas = findViewById<TextView>(R.id.txtNumeroPersonas)
+                    var listaIngredientes = cargarIngredientes(receta.idReceta)
+                    receta = cargarDatosReceta(recetaSeleccionada.toString())
+                    txtNombreReceta.setText(receta.nombreReceta)
+                    txtCategoria.setText("Categoria: "+receta.categoriaReceta)
+                    txtProcedimiento.setText(receta.procedimiento)
+                    txtNumeroPersonas.setText("Receta para: "+receta.cantidadPersonas.toString()+" personas")
+                    cargarListaIngredientes(listaIngredientes, lvIngredientesReceta)
+                }
+            }
         }
     }
 
@@ -55,18 +88,18 @@ class Detalle : AppCompatActivity() {
             val conexion = Conexion(this, "BaseRecetas", null, 1)
             val bd = conexion.writableDatabase
             bd.delete("recetas","idReceta = ${idReceta}",null)
-            this.finish()
         }catch (ex: Exception){
             ex.printStackTrace()
         }
     }
 
-    fun cargarListaCalculo(listaIngredientes: MutableList<Ingrediente>, lvIngrediente: ListView, cantidadPersonas: Int){
+    fun cargarListaCalculo(listaIngredientes: MutableList<Ingrediente>, lvIngrediente: ListView, cantidadPersonas: Int, cantidadReceta: Int){
         try {
             var listaCantidadIngrediente: MutableList<String> = ArrayList()
 
             for(ingrediente: Ingrediente in listaIngredientes){
-                listaCantidadIngrediente.add("Ingrediente: "+ingrediente.nombreIngrediente+" | Cantidad:"+ingrediente.cantidadIngrediente*cantidadPersonas)
+                listaCantidadIngrediente.add("Ingrediente: "+ingrediente.nombreIngrediente+
+                        " | Cantidad:"+(ingrediente.cantidadIngrediente*cantidadPersonas)/cantidadReceta +" "+ ingrediente.tipoIngrediente)
             }
             val adaptador = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listaCantidadIngrediente)
             lvIngrediente.adapter = adaptador
@@ -79,7 +112,7 @@ class Detalle : AppCompatActivity() {
            var listaNombreIngrediente: MutableList<String> = ArrayList()
 
            for(ingrediente: Ingrediente in listaIngredientes){
-               listaNombreIngrediente.add("Ingrediente: "+ingrediente.nombreIngrediente+" | Cantidad: "+ingrediente.cantidadIngrediente)
+               listaNombreIngrediente.add("Ingrediente: "+ingrediente.nombreIngrediente+" | Cantidad: "+ingrediente.cantidadIngrediente +" "+ ingrediente.tipoIngrediente)
            }
            val adaptador = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,listaNombreIngrediente)
            lvIngrediente.adapter = adaptador
@@ -95,7 +128,7 @@ class Detalle : AppCompatActivity() {
             val bd = conexion.writableDatabase
             val consulta = bd.rawQuery("select * from ingredientes where idReceta = ${idReceta}", null)
             while(consulta.moveToNext()){
-                var ingrediente = Ingrediente(consulta.getString(1), consulta.getInt(2))
+                var ingrediente = Ingrediente(consulta.getString(1), consulta.getInt(2), consulta.getString(3))
                 listaIngredientes.add(ingrediente)
             }
         }catch (ex: Exception){
@@ -112,7 +145,7 @@ class Detalle : AppCompatActivity() {
             val consulta = bd.rawQuery("Select * from recetas where nombreReceta='${nombreReceta}'", null)
             if(consulta.moveToNext()){
                 recetaEncontrada = Receta(consulta.getInt(0), consulta.getString(1), consulta.getString(2),
-                consulta.getString(3))
+                consulta.getString(3), consulta.getInt(4))
             }
             bd.close()
         }catch (ex: Exception){

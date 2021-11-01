@@ -29,12 +29,12 @@
             android:textSize="25dp" />
 
         <EditText
-            android:id="@+id/tbIdReceta"
+            android:id="@+id/tbCantidadPersonas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Código receta"
-            android:inputType="number" />
+            android:inputType="textPersonName"
+            android:hint="Cantidad de personas" />
 
         <EditText
             android:id="@+id/tbPasosReceta"
@@ -75,6 +75,12 @@
             android:hint="Cantidad"
             android:inputType="number"
             android:minHeight="48dp" />
+
+        <Spinner
+            android:id="@+id/cbTipoIngrediente"
+            android:entries="@array/cantidadesMedibles"
+            android:layout_width="match_parent"
+            android:layout_height="35dp" />
 
         <Button
             android:id="@+id/btnAñadirIngrediente"

@@ -9,7 +9,7 @@ import android.widget.ListView
 import android.widget.Toast
 
 class ScreenRecetas : AppCompatActivity() {
-
+    var categoriaReceta = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_screen_recetas)
@@ -18,24 +18,31 @@ class ScreenRecetas : AppCompatActivity() {
         var recetaSeleccionada: String = ""
         val lvRecetas = findViewById<ListView>(R.id.lvRecetas)
         val btnSubirReceta = findViewById<Button>(R.id.btnCrearReceta)
+        val btnMasRecetas = findViewById<Button>(R.id.btnMásRecetas)
 
         if(botonPresionado == 1){
-           cargarRecetas(lvRecetas, "Ensaladas")
+            categoriaReceta = "Ensaladas"
+           cargarRecetas(lvRecetas, categoriaReceta)
             this.setTitle("Ensaladas")
         }else if(botonPresionado == 2){
-            cargarRecetas(lvRecetas, "Sopas")
+            categoriaReceta = "Sopas"
+            cargarRecetas(lvRecetas, categoriaReceta)
             this.setTitle("Sopas y caldos")
         }else if(botonPresionado == 3){
-            cargarRecetas(lvRecetas, "Pastas")
+            categoriaReceta = "Pastas"
+            cargarRecetas(lvRecetas, categoriaReceta)
             this.setTitle("Pastas y pizzas")
         }else if(botonPresionado ==4){
-            cargarRecetas(lvRecetas, "Carnes y pescado")
+            categoriaReceta = "Carnes y pescado"
+            cargarRecetas(lvRecetas, categoriaReceta)
             this.setTitle("Carnes y pescados")
         }else if (botonPresionado == 5){
-            cargarRecetas(lvRecetas, "Postres")
+            categoriaReceta = "Postres"
+            cargarRecetas(lvRecetas, categoriaReceta)
             this.setTitle("Postres")
         }else if(botonPresionado == 6){
-            cargarRecetas(lvRecetas, "Platillos fuertes")
+            categoriaReceta = "Platillos fuertes"
+            cargarRecetas(lvRecetas, categoriaReceta)
             this.setTitle("Platillos fuertes")
         }
 
@@ -43,34 +50,53 @@ class ScreenRecetas : AppCompatActivity() {
             recetaSeleccionada = lvRecetas.getItemAtPosition(i).toString()
             val pantallaIniciar = Intent(this, Detalle::class.java)
             pantallaIniciar.putExtra("receta", recetaSeleccionada)
-            startActivity(pantallaIniciar)
+            startActivityForResult(pantallaIniciar, 1)
         }
 
         btnSubirReceta.setOnClickListener{
             if(botonPresionado == 1){
                 val pantallaIniciar = Intent(this, ScreenCustomizeReceta::class.java)
                 pantallaIniciar.putExtra("btnPresionado", botonPresionado)
-                startActivity(pantallaIniciar)
+                startActivityForResult(pantallaIniciar, 1)
             }else if(botonPresionado ==2){
                 val pantallaIniciar = Intent(this, ScreenCustomizeReceta::class.java)
                 pantallaIniciar.putExtra("btnPresionado", botonPresionado)
-                startActivity(pantallaIniciar)
+                startActivityForResult(pantallaIniciar, 2)
             }else if(botonPresionado ==3){
                 val pantallaIniciar = Intent(this, ScreenCustomizeReceta::class.java)
                 pantallaIniciar.putExtra("btnPresionado", botonPresionado)
-                startActivity(pantallaIniciar)
+                startActivityForResult(pantallaIniciar, 3)
             }else if(botonPresionado == 4){
                 val pantallaIniciar = Intent(this, ScreenCustomizeReceta::class.java)
                 pantallaIniciar.putExtra("btnPresionado", botonPresionado)
-                startActivity(pantallaIniciar)
+                startActivityForResult(pantallaIniciar, 4)
             }else if(botonPresionado == 5){
                 val pantallaIniciar = Intent(this, ScreenCustomizeReceta::class.java)
                 pantallaIniciar.putExtra("btnPresionado", botonPresionado)
-                startActivity(pantallaIniciar)
+                startActivityForResult(pantallaIniciar, 5)
             }else if(botonPresionado ==6){
                 val pantallaIniciar = Intent(this, ScreenCustomizeReceta::class.java)
                 pantallaIniciar.putExtra("btnPresionado", botonPresionado)
-                startActivity(pantallaIniciar)
+                startActivityForResult(pantallaIniciar, 6)
+            }
+        }
+
+        btnMasRecetas.setOnClickListener{
+            val pantallaNavegador = Intent(this, MasRecetas::class.java)
+            pantallaNavegador.putExtra("btnReceta", botonPresionado)
+            startActivity(pantallaNavegador)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val lvRecetas = findViewById<ListView>(R.id.lvRecetas)
+        if(requestCode == requestCode){
+            if(resultCode == resultCode){
+                var mensaje = data?.getStringExtra("Mensaje")
+                if(mensaje.equals("Guardado")){
+                    cargarRecetas(lvRecetas, categoriaReceta)
+                }
             }
         }
     }
@@ -83,11 +109,12 @@ class ScreenRecetas : AppCompatActivity() {
             val listaRecetas: MutableList<String> = ArrayList()
             while(consulta.moveToNext()){
                 val receta = Receta(consulta.getInt(0), consulta.getString(1), consulta.getString(2),
-                    consulta.getString(3))
+                    consulta.getString(3), consulta.getInt(4))
                 listaRecetas.add(receta.nombreReceta)
             }
             val adaptador = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listaRecetas)
             listaRecetasRegistradas.adapter = adaptador
+            bd.close()
         }catch (ex: NullPointerException){
             ex.printStackTrace()
         }

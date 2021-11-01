@@ -1,8 +1,10 @@
 package com.capi.recetario
 
 import android.content.ContentValues
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Message
 import android.widget.*
 
 class ScreenCustomizeReceta : AppCompatActivity() {
@@ -21,8 +23,9 @@ class ScreenCustomizeReceta : AppCompatActivity() {
         val btnAñadirIngrediente = findViewById<Button>(R.id.btnAñadirIngrediente)
         val tbIngrediente = findViewById<EditText>(R.id.tbIngrediente)
         val tbCantidad = findViewById<EditText>(R.id.tbCantidad)
-        val tbCodigoReceta = findViewById<EditText>(R.id.tbIdReceta)
+        var tbCantidadPersonas = findViewById<EditText>(R.id.tbCantidadPersonas)
         val btnGuardarReceeta = findViewById<Button>(R.id.btnGuardarReceta)
+        val cbUnidades = findViewById<Spinner>(R.id.cbTipoIngrediente)
         var tipoReceta: String = ""
         var recetaModificar = Receta()
 
@@ -32,8 +35,7 @@ class ScreenCustomizeReceta : AppCompatActivity() {
             recetaModificar = cargarDatosRecetaModificar(idReceta)
             tbNombreReceta.setText(recetaModificar.nombreReceta)
             tbPasosReceta.setText(recetaModificar.procedimiento)
-            tbCodigoReceta.setText(recetaModificar.idReceta.toString())
-            tbCodigoReceta.isEnabled = false
+            tbCantidadPersonas.setText(recetaModificar.cantidadPersonas.toString())
             listaIngredientes = cargarIngredientesModificar(recetaModificar.idReceta)
             listaCantidadIngrediente = cargarListaIngredientes(listaIngredientes, lvIngredientes)
         }else{
@@ -41,18 +43,20 @@ class ScreenCustomizeReceta : AppCompatActivity() {
         }
 
         btnAñadirIngrediente.setOnClickListener{
-           if(tbIngrediente.text.isBlank() || tbCantidad.text.isBlank()){
+           if(tbIngrediente.text.isBlank() || tbCantidad.text.isBlank() || cbUnidades.selectedItemPosition == 0){
                Toast.makeText(this, "Debe de llenar los campos de ingrediente", Toast.LENGTH_SHORT).show()
            }else{
                var cantidad = tbCantidad.text.toString()
-               val ingredienteNuevo = Ingrediente(tbIngrediente.text.toString(), cantidad.toInt())
+               val ingredienteNuevo = Ingrediente(tbIngrediente.text.toString(), cantidad.toInt(), cbUnidades.selectedItem.toString())
                listaIngredientes.add(ingredienteNuevo)
-               listaCantidadIngrediente.add("Ingrediente: "+tbIngrediente.text.toString()+" - cantidad: "+cantidad)
+               listaCantidadIngrediente.add("Ingrediente: "+tbIngrediente.text.toString()+" - cantidad: "+" "+cantidad+cbUnidades.selectedItem.toString())
                val adaptador = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listaCantidadIngrediente)
                lvIngredientes.adapter = adaptador
                tbIngrediente.setText("")
                tbCantidad.setText("")
            }
+
+
         }
 
         if(btnPresionado == 1){
@@ -70,27 +74,32 @@ class ScreenCustomizeReceta : AppCompatActivity() {
         }
 
         btnGuardarReceeta.setOnClickListener{
-            if(tbNombreReceta.text.isBlank() || tbCodigoReceta.text.isBlank()|| tbPasosReceta.text.isBlank()){
+            if(tbNombreReceta.text.isBlank() ||  tbPasosReceta.text.isBlank() || tbCantidadPersonas.text.isBlank()){
                 Toast.makeText(this, "Debe de llenar todos los campos", Toast.LENGTH_SHORT).show()
             }else{
                 if(esNuevo == true){
                     var recetaModificar = Receta()
                     recetaModificar.nombreReceta = tbNombreReceta.text.toString()
                     recetaModificar.procedimiento = tbPasosReceta.text.toString()
-                    recetaModificar.idReceta = tbCodigoReceta.text.toString().toInt()
+                    recetaModificar.cantidadPersonas = tbCantidadPersonas.text.toString().toInt()
                     modificarReceta(recetaModificar, listaIngredientes)
                 }else{
                     var recetaGuardar = Receta()
-                    recetaGuardar.idReceta = tbCodigoReceta.text.toString().toInt()
                     recetaGuardar.procedimiento = tbPasosReceta.text.toString()
                     recetaGuardar.categoriaReceta = tipoReceta
                     recetaGuardar.nombreReceta = tbNombreReceta.text.toString()
+                    recetaGuardar.cantidadPersonas = tbCantidadPersonas.text.toString().toInt()
                     guardarRecetaNueva(recetaGuardar, listaIngredientes)
                     listaCantidadIngrediente.clear()
                 }
+                val intent = Intent()
+                var mensaje = "Guardado"
+                intent.putExtra("Mensaje", mensaje)
+                setResult(RESULT_OK, intent)
+                finish()
             }
+            tbCantidadPersonas.setText("")
             tbNombreReceta.setText("")
-            tbCodigoReceta.setText("")
             tbPasosReceta.setText("")
 
             Toast.makeText(this, "Se registro correctamente la receta", Toast.LENGTH_SHORT).show()
@@ -104,17 +113,26 @@ class ScreenCustomizeReceta : AppCompatActivity() {
             val bd = conexion.writableDatabase
             val registro = ContentValues()
 
-            registro.put("idReceta", recetaGuardar.idReceta)
             registro.put("nombreReceta", recetaGuardar.nombreReceta)
             registro.put("procedimiento", recetaGuardar.procedimiento)
             registro.put("categoria", recetaGuardar.categoriaReceta)
+            registro.put("cantidadPersonas", recetaGuardar.cantidadPersonas)
             bd.insert("recetas", null, registro)
+
+            val consulta = bd.rawQuery("select idReceta from recetas " +
+                    "where nombreReceta ='${recetaGuardar.nombreReceta}' " +
+                    "AND procedimiento = '${recetaGuardar.procedimiento}'", null)
+
+            if(consulta.moveToNext()){
+                recetaGuardar.idReceta = consulta.getString(0).toInt()
+            }
 
             for(ingredienteNuevo: Ingrediente in listaIngredientes){
                 val registroIngredientes = ContentValues()
                 registroIngredientes.put("idReceta", recetaGuardar.idReceta)
                 registroIngredientes.put("nombreIngrediente", ingredienteNuevo.nombreIngrediente)
                 registroIngredientes.put("cantidad", ingredienteNuevo.cantidadIngrediente)
+                registroIngredientes.put("tipoIngrediente", ingredienteNuevo.tipoIngrediente)
                 bd.insert("ingredientes", null, registroIngredientes)
             }
             listaIngredientes.clear()
@@ -124,6 +142,7 @@ class ScreenCustomizeReceta : AppCompatActivity() {
         }
     }
 
+
     fun modificarReceta(recetaModificar: Receta, listaIngredientes: MutableList<Ingrediente>){
         try{
             val conexion = Conexion(this, "BaseRecetas", null,1)
@@ -131,13 +150,22 @@ class ScreenCustomizeReceta : AppCompatActivity() {
             val registro = ContentValues()
             registro.put("nombreReceta", recetaModificar.nombreReceta)
             registro.put("procedimiento", recetaModificar.procedimiento)
+            registro.put("cantidadPersonas", recetaModificar.cantidadPersonas)
             bd.update("recetas", registro,"idReceta =${recetaModificar.idReceta}", null)
             bd.delete("ingredientes","idReceta = ${recetaModificar.idReceta}",null)
+            val consulta = bd.rawQuery("select idReceta from recetas " +
+                    "where nombreReceta ='${recetaModificar.nombreReceta}' " +
+                    "AND procedimiento = '${recetaModificar.procedimiento}'", null)
+
+            if(consulta.moveToNext()){
+                recetaModificar.idReceta = consulta.getString(0).toInt()
+            }
             for(ingredienteNuevo: Ingrediente in listaIngredientes){
                 val registroIngrediente = ContentValues()
                 registroIngrediente.put("idReceta", recetaModificar.idReceta)
                 registroIngrediente.put("nombreIngrediente", ingredienteNuevo.nombreIngrediente)
                 registroIngrediente.put("cantidad", ingredienteNuevo.cantidadIngrediente)
+                registroIngrediente.put("tipoIngrediente", ingredienteNuevo.tipoIngrediente)
                 bd.insert("ingredientes", null, registroIngrediente)
             }
         }catch (ex: java.lang.Exception){
@@ -149,7 +177,7 @@ class ScreenCustomizeReceta : AppCompatActivity() {
         var listaNombreIngrediente: MutableList<String> = ArrayList()
         try {
             for(ingrediente: Ingrediente in listaIngredientes){
-                listaNombreIngrediente.add("Ingrediente: "+ingrediente.nombreIngrediente+" | Cantidad: "+ingrediente.cantidadIngrediente)
+                listaNombreIngrediente.add("Ingrediente: "+ingrediente.nombreIngrediente+" | Cantidad: "+ingrediente.cantidadIngrediente +" "+ ingrediente.tipoIngrediente)
             }
             val adaptador = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,listaNombreIngrediente)
             lvIngrediente.adapter = adaptador
@@ -166,7 +194,7 @@ class ScreenCustomizeReceta : AppCompatActivity() {
             val bd = conexion.writableDatabase
             val consulta = bd.rawQuery("select * from ingredientes where idReceta = ${idReceta}", null)
             while(consulta.moveToNext()){
-                var ingrediente = Ingrediente(consulta.getString(1), consulta.getInt(2))
+                var ingrediente = Ingrediente(consulta.getString(1), consulta.getInt(2), consulta.getString(3))
                 listaIngredientes.add(ingrediente)
             }
         }catch (ex: java.lang.Exception){
@@ -183,7 +211,7 @@ class ScreenCustomizeReceta : AppCompatActivity() {
             val consulta = bd.rawQuery("Select * from recetas where idReceta=${idReceta}", null)
             if(consulta.moveToNext()){
                 recetaEncontrada = Receta(consulta.getInt(0), consulta.getString(1), consulta.getString(2),
-                    consulta.getString(3))
+                    consulta.getString(3), consulta.getInt(4))
             }
             bd.close()
         }catch (ex: java.lang.Exception){

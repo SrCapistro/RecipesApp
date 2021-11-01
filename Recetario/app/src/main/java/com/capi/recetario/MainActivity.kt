@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity() {
         val btnPasta = findViewById<ImageButton>(R.id.btnPastas)
         val btnPlatoFuerte = findViewById<ImageButton>(R.id.btnPlatosFuertes)
         val btnSopas = findViewById<ImageButton>(R.id.btnSopas)
-
         btnEnsaladas.setOnClickListener{
             btnPresionado = 1
             val pantallaIniciar = Intent(this, ScreenRecetas::class.java)

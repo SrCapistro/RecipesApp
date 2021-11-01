@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Recetario</string>
+    <string-array name="cantidadesMedibles">
+        <item>Seleccione la unidad de medida</item>
+        <item>Gramo/s</item>
+        <item>Kilo/s</item>
+        <item>Pieza/s</item>
+        <item>Litro/s</item>
+        <item>Mililitro/s</item>
+        <item>Galon/es</item>
+        <item>Cucharada/s</item>
+        <item>Taza/s</item>
+    </string-array>
 </resources>
