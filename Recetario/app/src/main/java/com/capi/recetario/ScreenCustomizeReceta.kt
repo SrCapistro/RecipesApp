@@ -47,9 +47,9 @@ class ScreenCustomizeReceta : AppCompatActivity() {
                Toast.makeText(this, "Debe de llenar los campos de ingrediente", Toast.LENGTH_SHORT).show()
            }else{
                var cantidad = tbCantidad.text.toString()
-               val ingredienteNuevo = Ingrediente(tbIngrediente.text.toString(), cantidad.toInt(), cbUnidades.selectedItem.toString())
+               val ingredienteNuevo = Ingrediente(tbIngrediente.text.toString(), cantidad.toDouble(), cbUnidades.selectedItem.toString())
                listaIngredientes.add(ingredienteNuevo)
-               listaCantidadIngrediente.add("Ingrediente: "+tbIngrediente.text.toString()+" - cantidad: "+" "+cantidad+cbUnidades.selectedItem.toString())
+               listaCantidadIngrediente.add("Ingrediente: "+tbIngrediente.text.toString()+" - cantidad: "+" "+cantidad+" "+cbUnidades.selectedItem.toString())
                val adaptador = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listaCantidadIngrediente)
                lvIngredientes.adapter = adaptador
                tbIngrediente.setText("")
@@ -59,18 +59,25 @@ class ScreenCustomizeReceta : AppCompatActivity() {
 
         }
 
-        if(btnPresionado == 1){
-            tipoReceta = "Ensaladas"
-        }else if(btnPresionado == 2){
-            tipoReceta = "Sopas"
-        }else if(btnPresionado == 3){
-            tipoReceta = "Pastas"
-        }else if(btnPresionado ==4){
-            tipoReceta = "Carnes y pescado"
-        }else if(btnPresionado == 5){
-            tipoReceta = "Postres"
-        }else if(btnPresionado == 6){
-            tipoReceta = "Platillos fuertes"
+        when (btnPresionado) {
+            1 -> {
+                tipoReceta = "Ensaladas"
+            }
+            2 -> {
+                tipoReceta = "Sopas"
+            }
+            3 -> {
+                tipoReceta = "Pastas"
+            }
+            4 -> {
+                tipoReceta = "Carnes y pescado"
+            }
+            5 -> {
+                tipoReceta = "Postres"
+            }
+            6 -> {
+                tipoReceta = "Platillos fuertes"
+            }
         }
 
         btnGuardarReceeta.setOnClickListener{
@@ -98,9 +105,6 @@ class ScreenCustomizeReceta : AppCompatActivity() {
                 setResult(RESULT_OK, intent)
                 finish()
             }
-            tbCantidadPersonas.setText("")
-            tbNombreReceta.setText("")
-            tbPasosReceta.setText("")
 
             Toast.makeText(this, "Se registro correctamente la receta", Toast.LENGTH_SHORT).show()
         }
@@ -194,7 +198,7 @@ class ScreenCustomizeReceta : AppCompatActivity() {
             val bd = conexion.writableDatabase
             val consulta = bd.rawQuery("select * from ingredientes where idReceta = ${idReceta}", null)
             while(consulta.moveToNext()){
-                var ingrediente = Ingrediente(consulta.getString(1), consulta.getInt(2), consulta.getString(3))
+                var ingrediente = Ingrediente(consulta.getString(1), consulta.getDouble(2), consulta.getString(3))
                 listaIngredientes.add(ingrediente)
             }
         }catch (ex: java.lang.Exception){

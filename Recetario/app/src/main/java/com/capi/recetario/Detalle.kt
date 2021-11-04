@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import java.lang.Exception
 
 class Detalle : AppCompatActivity() {
@@ -35,12 +36,22 @@ class Detalle : AppCompatActivity() {
         cargarListaIngredientes(listaIngredientes, lvIngredientesReceta)
 
         btnEliminarReceta.setOnClickListener{
-            eliminarReceta(receta.idReceta)
-            val intent = Intent()
-            var mensaje = "Guardado"
-            intent.putExtra("Mensaje", mensaje)
-            setResult(RESULT_OK, intent)
-            finish()
+           val builder = AlertDialog.Builder(this)
+            builder.setMessage("¿Desea confirmar la eliminación de la receta?")
+                .setCancelable(false)
+                .setPositiveButton("Si"){ dialog, id ->
+                    eliminarReceta(receta.idReceta)
+                    val intent = Intent()
+                    var mensaje = "Guardado"
+                    intent.putExtra("Mensaje", mensaje)
+                    setResult(RESULT_OK, intent)
+                    finish()
+                }
+                .setNegativeButton("No"){dialog, id ->
+                    dialog.dismiss()
+                }
+            val alert = builder.create()
+            alert.show()
         }
 
         btnModificarReceta.setOnClickListener{
@@ -71,8 +82,8 @@ class Detalle : AppCompatActivity() {
                     val lvIngredientesReceta = findViewById<ListView>(R.id.lvIngredientesReceta)
                     val txtProcedimiento = findViewById<EditText>(R.id.txtProcedimiento)
                     val txtNumeroPersonas = findViewById<TextView>(R.id.txtNumeroPersonas)
-                    var listaIngredientes = cargarIngredientes(receta.idReceta)
                     receta = cargarDatosReceta(recetaSeleccionada.toString())
+                    var listaIngredientes = cargarIngredientes(receta.idReceta)
                     txtNombreReceta.setText(receta.nombreReceta)
                     txtCategoria.setText("Categoria: "+receta.categoriaReceta)
                     txtProcedimiento.setText(receta.procedimiento)
@@ -128,7 +139,7 @@ class Detalle : AppCompatActivity() {
             val bd = conexion.writableDatabase
             val consulta = bd.rawQuery("select * from ingredientes where idReceta = ${idReceta}", null)
             while(consulta.moveToNext()){
-                var ingrediente = Ingrediente(consulta.getString(1), consulta.getInt(2), consulta.getString(3))
+                var ingrediente = Ingrediente(consulta.getString(1), consulta.getDouble(2), consulta.getString(3))
                 listaIngredientes.add(ingrediente)
             }
         }catch (ex: Exception){
